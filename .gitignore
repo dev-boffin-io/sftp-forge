@@ -45,6 +45,7 @@ runtime/
 build/
 dist/
 *.spec
+sftp-forge
 
 # PyInstaller
 *.manifest

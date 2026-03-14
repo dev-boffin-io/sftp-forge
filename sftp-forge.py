@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QListWidget, QListWidgetItem,
     QLineEdit, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
     QGridLayout, QFileDialog, QMessageBox, QFrame, QSizePolicy,
+    QCheckBox,
 )
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
 
@@ -225,6 +226,27 @@ QPushButton#DangerBtn:hover {
 }
 QPushButton#DangerBtn:pressed {
     background-color: #490c0c;
+}
+
+/* ── Raw mode checkbox ───────────────────── */
+QCheckBox#RawToggle {
+    color: #8b949e;
+    font-size: 24px;
+    spacing: 10px;
+}
+QCheckBox#RawToggle::indicator {
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    border: 2px solid #30363d;
+    background-color: #0d1117;
+}
+QCheckBox#RawToggle::indicator:checked {
+    background-color: #1f6feb;
+    border-color: #58a6ff;
+}
+QCheckBox#RawToggle::indicator:hover {
+    border-color: #484f58;
 }
 
 /* ── Scrollbar ───────────────────────────── */
@@ -588,6 +610,16 @@ class SFTPForge(QWidget):
             b.setMinimumHeight(52)
             btn_row.addWidget(b)
 
+        # Raw mode toggle — sits at the right end of the button row
+        self.raw_toggle = QCheckBox("Raw mode")
+        self.raw_toggle.setObjectName("RawToggle")
+        self.raw_toggle.setToolTip(
+            "Checked: run ssh / sftp directly in terminal\n"
+            "Unchecked: open via xdg-open (file manager)"
+        )
+        self.raw_toggle.setMinimumHeight(52)
+        btn_row.addWidget(self.raw_toggle)
+
         lay.addLayout(btn_row)
         lay.addStretch()
 
@@ -681,14 +713,30 @@ class SFTPForge(QWidget):
         self._refresh_list()
 
     def _open_sftp(self):
-        if not self.xdg_ok:
-            QMessageBox.warning(self, "Error", "xdg-open not found")
-            return
         form = self._read_form()
         if not form or not self._key_ok(form):
             return
-        url = f"sftp://{self._target(form)}:{form['port']}{form['path']}"
-        subprocess.Popen(["xdg-open", url], close_fds=True)
+        if self.raw_toggle.isChecked():
+            if not self.terminal:
+                QMessageBox.warning(self, "Error", "No terminal emulator found")
+                return
+            cmd = ["sftp", "-P", str(form["port"])]
+            if form["key"]:
+                cmd += ["-i", form["key"]]
+            cmd.append(self._target(form))
+            subprocess.Popen(wrap_in_terminal(self.terminal, cmd), close_fds=True)
+        else:
+            if not self.xdg_ok:
+                QMessageBox.warning(self, "Error", "xdg-open not found")
+                return
+            port   = form["port"]
+            target = self._target(form)
+            path   = form["path"]
+            if port == 22:
+                url = f"sftp://{target}{path}"
+            else:
+                url = f"sftp://{target}:{port}{path}"
+            subprocess.Popen(["xdg-open", url], close_fds=True)
 
     def _open_terminal(self):
         if not self.terminal:
@@ -697,8 +745,8 @@ class SFTPForge(QWidget):
         form = self._read_form()
         if not form or not self._key_ok(form):
             return
-        ssh  = build_ssh_cmd(self._target(form), form["port"], form["key"] or None)
-        cmd  = wrap_in_terminal(self.terminal, ssh)
+        ssh = build_ssh_cmd(self._target(form), form["port"], form["key"] or None)
+        cmd = wrap_in_terminal(self.terminal, ssh)
         subprocess.Popen(cmd, close_fds=True)
 
     def _mount_sshfs(self):
