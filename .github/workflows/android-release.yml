@@ -48,14 +48,14 @@ jobs:
         run: |
           cat >> android/build.gradle.kts << 'EOF'
 
-subprojects {
-    afterEvaluate {
-        extensions.findByType<com.android.build.gradle.LibraryExtension>()?.let {
-            it.compileSdk = 36
-        }
-    }
-}
-EOF
+          subprojects {
+              afterEvaluate {
+                  extensions.findByType<com.android.build.gradle.LibraryExtension>()?.let {
+                      it.compileSdk = 36
+                  }
+              }
+          }
+          EOF
           cat android/build.gradle.kts
 
       - run: flutter pub get
