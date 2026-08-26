@@ -30,6 +30,15 @@ jobs:
             flutter create --platforms=android --org io.github.devboffin --project-name sftp_forge .
           fi
 
+      # flutter_plugin_android_lifecycle (pulled in transitively by
+      # file_picker) requires compileSdk 36+; the stock template's
+      # flutter.compileSdkVersion default can lag behind that.
+      - name: Pin compileSdk/targetSdk to 36
+        run: |
+          sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' android/app/build.gradle.kts
+          sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 36/' android/app/build.gradle.kts
+          grep -n 'compileSdk\|targetSdk' android/app/build.gradle.kts
+
       - run: flutter pub get
 
       - name: Build release APK
