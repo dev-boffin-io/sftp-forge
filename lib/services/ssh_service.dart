@@ -21,7 +21,7 @@ class SSHService {
       socket,
       username: profile.user,
       identities: identities,
-      onPasswordAuth: identities == null ? () => password ?? '' : null,
+      onPasswordRequest: identities == null ? () => password ?? '' : null,
     );
   }
 
