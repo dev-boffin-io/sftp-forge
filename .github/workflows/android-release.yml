@@ -75,6 +75,9 @@ jobs:
 
       - run: flutter pub get
 
+      - name: Generate launcher icon from assets/icon/icon.png
+        run: dart run flutter_launcher_icons
+
       - name: Build release APK
         run: flutter build apk --release --split-per-abi
 
