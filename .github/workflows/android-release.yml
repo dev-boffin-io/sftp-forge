@@ -31,13 +31,16 @@ jobs:
           fi
 
       # flutter_plugin_android_lifecycle (pulled in transitively by
-      # file_picker) requires compileSdk 36+; the stock template's
-      # flutter.compileSdkVersion default can lag behind that.
-      - name: Pin compileSdk/targetSdk to 36
+      # file_picker) requires compileSdk 36+. Patching app/build.gradle.kts
+      # alone isn't enough — plugin subprojects (like file_picker's own
+      # android/build.gradle) read flutter.compileSdkVersion from the
+      # Flutter Gradle plugin's shared default, which local.properties is
+      # the documented override point for across ALL subprojects.
+      - name: Pin flutter.compileSdkVersion to 36
         run: |
-          sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' android/app/build.gradle.kts
-          sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 36/' android/app/build.gradle.kts
-          grep -n 'compileSdk\|targetSdk' android/app/build.gradle.kts
+          echo "flutter.compileSdkVersion=36" >> android/local.properties
+          echo "flutter.targetSdkVersion=36" >> android/local.properties
+          cat android/local.properties
 
       - run: flutter pub get
 
