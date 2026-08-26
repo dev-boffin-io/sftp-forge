@@ -49,11 +49,16 @@ jobs:
           cat >> android/build.gradle.kts << 'EOF'
 
           subprojects {
-              pluginManager.withPlugin("com.android.library") {
-                  extensions.configure<com.android.build.gradle.LibraryExtension> {
-                      compileSdk = 36
+              val forceCompileSdk36 = {
+                  extensions.findByType<com.android.build.gradle.LibraryExtension>()?.let {
+                      it.compileSdk = 36
                   }
               }
+              // Run immediately if this subproject already evaluated
+              // (calling afterEvaluate on an evaluated project throws);
+              // otherwise defer, so it overrides whatever the plugin's
+              // own build.gradle sets for itself later in its own script.
+              if (state.executed) forceCompileSdk36() else afterEvaluate { forceCompileSdk36() }
           }
           EOF
           cat android/build.gradle.kts
