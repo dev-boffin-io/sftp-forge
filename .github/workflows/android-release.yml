@@ -30,6 +30,16 @@ jobs:
             flutter create --platforms=android --org io.github.devboffin --project-name sftp_forge .
           fi
 
+      # flutter create only adds INTERNET permission to the DEBUG manifest
+      # (needed for the Dart VM debug service) — the release/main manifest
+      # ships without it, so a release build has no network access at all.
+      - name: Add INTERNET permission to the release manifest
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          grep -q 'android.permission.INTERNET' "$MANIFEST" || \
+            sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET" />\n\n    <application#' "$MANIFEST"
+          cat "$MANIFEST"
+
       # flutter_plugin_android_lifecycle (pulled in transitively by
       # file_picker) requires compileSdk 36+.
       # 1) local.properties' flutter.compileSdkVersion covers the app
