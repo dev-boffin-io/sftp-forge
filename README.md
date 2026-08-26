@@ -1,115 +1,39 @@
-# SFTP Forge
+# SFTP Forge — Android
 
-A lightweight desktop GUI for managing SSH/SFTP connections on Linux.  
-Built with Python and PyQt6.
+Flutter port of the desktop `sftp-forge.py` PyQt6 app. Same profile
+model (name/user/host/port/key/path), same GitHub-Dark palette.
 
----
+Desktop-only actions (`xdg-open sftp://…`, `sshfs` mount, external
+terminal emulator) don't map to Android, so they're replaced with:
 
-## Features
+| Desktop                | Android                                  |
+|---|---|
+| Open SFTP (xdg-open)   | in-app SFTP browser (`dartssh2` SftpClient) |
+| Open Terminal          | in-app terminal (`dartssh2` shell + `xterm`) |
+| Mount (sshfs)          | dropped — no FUSE without root            |
+| `~/.config/sftp-forge.json` | JSON file in app documents dir      |
 
-- Save and manage multiple SSH/SFTP connection profiles
-- Open SFTP in your file manager via `xdg-open sftp://…`
-- Open an SSH terminal session directly from the GUI
-- Mount remote filesystems locally using `sshfs`
-- SSH key file support with a file browser
-- Custom remote path per profile
-- Profiles stored in `~/.config/sftp-forge.json`
-- Auto-detects available terminal emulator and file manager
-- Dark theme UI (GitHub Dark inspired)
+## Local dev (first run)
 
----
-
-## Requirements
-
-| Dependency | Required | Notes |
-|---|---|---|
-| Python 3.10+ | Yes | Uses `str \| None` union syntax |
-| PyQt6 | Yes | `pip install PyQt6` |
-| ssh | Yes | Usually pre-installed |
-| xdg-open | For SFTP | Part of `xdg-utils` |
-| sshfs | For mounting | `apt install sshfs` |
-
-### Supported terminal emulators
-
-`gnome-terminal`, `konsole`, `xfce4-terminal`, `lxterminal`, `xterm`,
-`x-terminal-emulator` (resolved via symlink at runtime)
-
-### Supported file managers
-
-`nautilus`, `dolphin`, `thunar`, `pcmanfm`, `nemo`
-
----
-
-## Installation
+`android/` isn't checked in — `gradle-wrapper.jar` is a binary and
+shouldn't be hand-maintained in git. Generate it once:
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourname/sftp-forge.git
-cd sftp-forge
-
-# Install Python dependency
-pip install PyQt6
-
-# Run
-python3 sftp-forge.py
+flutter create --platforms=android --org io.github.devboffin --project-name sftp_forge .
+flutter pub get
+flutter run
 ```
 
-No build step required. Single-file application.
+## CI
 
----
+`.github/workflows/android-release.yml`:
+- runs on every push to the `android` branch → build artifact only
+- runs on `v*` tags → build + attach split-per-abi APKs to a GitHub Release
+- can also be triggered manually (`workflow_dispatch`)
 
-## Usage
+Tag a commit to cut a release:
 
-1. Fill in the connection fields on the right panel
-2. Click **Save Profile** to store the connection
-3. Click a saved profile on the left to load it
-4. Use the action buttons:
-
-| Button | Action |
-|---|---|
-| Open SFTP | Opens the remote path in your file manager |
-| Open Terminal | Opens an SSH session in your terminal |
-| Mount (sshfs) | Mounts the remote path to `~/sftp_mount_<host>` |
-| Save Profile | Saves the current form as a named profile |
-| Delete Profile | Deletes the selected profile |
-
----
-
-## Profile storage
-
-Profiles are stored at:
-
+```bash
+git tag v0.1.0
+git push origin v0.1.0
 ```
-~/.config/sftp-forge.json
-```
-
-Example entry:
-
-```json
-{
-  "my-server": {
-    "user": "ubuntu",
-    "host": "192.168.1.100",
-    "port": 22,
-    "key": "/home/user/.ssh/id_rsa",
-    "path": "/home/ubuntu"
-  }
-}
-```
-
----
-
-## Project structure
-
-```
-sftp-forge/
-├── sftp-forge.py   # Main application (single file)
-├── LICENSE
-└── README.md
-```
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE) for details.

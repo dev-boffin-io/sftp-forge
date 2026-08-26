@@ -1,0 +1,50 @@
+name: Android Release APK
+
+on:
+  push:
+    branches: [android]
+    tags: ["v*"]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # The android/ platform folder is generated, not checked in
+      # (gradle-wrapper.jar is binary and shouldn't live in git by hand).
+      - name: Ensure android platform scaffold exists
+        run: |
+          if [ ! -d android ]; then
+            flutter create --platforms=android --org io.github.devboffin --project-name sftp_forge .
+          fi
+
+      - run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sftp-forge-apk
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/*.apk
+          generate_release_notes: true

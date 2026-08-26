@@ -1,73 +1,17 @@
-# =========================
-# Python
-# =========================
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-
-# Virtual Environments
-venv/
-env/
-.venv/
-.conda/
-
-# =========================
-# PyQt / Qt
-# =========================
-*.qmlc
-*.qrc
-*.ui~
-.qmake.stash
-
-# =========================
-# OS / Editor junk
-# =========================
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*.bak
-*.tmp
-
-# =========================
-# Logs / Runtime
-# =========================
-*.log
-logs/
-cache/
-runtime/
-
-# =========================
-# Build / Packaging
-# =========================
+# Flutter/Dart
+.dart_tool/
+.packages
 build/
-dist/
-*.spec
-sftp-forge
+.flutter-plugins
+.flutter-plugins-dependencies
 
-# PyInstaller
-*.manifest
-*.spec
+# Generated platform scaffold (see .github/workflows/android-release.yml)
+android/
 
-# =========================
-# IDEs
-# =========================
-.vscode/
+# IDE
 .idea/
 *.iml
+.vscode/
 
-# =========================
-# Security / Secrets
-# =========================
-.env
-.env.*
-*.key
-*.pem
-
-# =========================
-# Linux specific
-# =========================
-*.pid
-*.lock
+# macOS
+.DS_Store
