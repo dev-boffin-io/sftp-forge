@@ -1,17 +1,85 @@
-# Flutter/Dart
-.dart_tool/
-.packages
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.conda/
+
+# =========================
+# PyQt / Qt
+# =========================
+*.qmlc
+*.qrc
+*.ui~
+.qmake.stash
+
+# =========================
+# OS / Editor junk
+# =========================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# =========================
+# Logs / Runtime
+# =========================
+*.log
+logs/
+cache/
+runtime/
+
+# =========================
+# Build / Packaging
+# =========================
 build/
-.flutter-plugins
-.flutter-plugins-dependencies
+dist/
+*.spec
+sftp-forge
 
-# Generated platform scaffold (see .github/workflows/android-release.yml)
-android/
+# PyInstaller
+*.manifest
+*.spec
 
-# IDE
+# =========================
+# IDEs
+# =========================
+.vscode/
 .idea/
 *.iml
-.vscode/
 
-# macOS
-.DS_Store
+# =========================
+# Security / Secrets
+# =========================
+.env
+.env.*
+*.key
+*.pem
+
+# =========================
+# Linux specific
+# =========================
+*.pid
+*.lock
+
+# =========================
+# Flutter / Dart (mobile/)
+# =========================
+mobile/.dart_tool/
+mobile/.packages
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/android/
+mobile/ios/
+mobile/build/
+mobile/*.iml
