@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/material.dart';
@@ -135,7 +136,7 @@ class _TerminalScreenState extends State<TerminalScreen> {
 
   void _handleTerminalOutput(SSHSession session, String data) {
     if (_ctrlActive && data.isNotEmpty) {
-      session.write([_ctrlByte(data.codeUnitAt(0))]);
+      session.write(Uint8List.fromList([_ctrlByte(data.codeUnitAt(0))]));
       setState(() => _ctrlActive = false);
       return;
     }
