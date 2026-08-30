@@ -182,19 +182,31 @@ class _TerminalScreenState extends State<TerminalScreen> {
     setState(() => _ctrlActive = !_ctrlActive);
   }
 
-  Future<void> _copyOutput() async {
-    await Clipboard.setData(ClipboardData(text: _plainLog.toString()));
+  Future<void> _copy() async {
+    final selection = terminalController.selection;
+    final String text;
+    final bool wasSelection;
+    if (selection != null) {
+      text = terminal.buffer.getText(selection);
+      terminalController.clearSelection();
+      wasSelection = true;
+    } else {
+      // Nothing selected — fall back to the full session transcript.
+      text = _plainLog.toString();
+      wasSelection = false;
+    }
+    await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Session output copied')),
+      SnackBar(content: Text(wasSelection ? 'Selection copied' : 'Session output copied')),
     );
   }
 
   Future<void> _paste() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final data = await Clipboard.getData('text/plain');
     final text = data?.text;
     if (text == null || text.isEmpty) return;
-    _session?.write(utf8.encode(text));
+    terminal.paste(text);
   }
 
   @override
@@ -212,7 +224,7 @@ class _TerminalScreenState extends State<TerminalScreen> {
         title: Text(widget.profile.name),
         actions: [
           IconButton(
-            onPressed: _copyOutput,
+            onPressed: _copy,
             icon: const Icon(Icons.copy),
             tooltip: 'Copy session output',
           ),
